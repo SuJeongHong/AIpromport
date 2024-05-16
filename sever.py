@@ -9,7 +9,7 @@ def index():
 @app.route('/search', methods=['POST'])
 def search():
     user_query = request.form['query']  # 사용자의 질문을 받아옴
-    # 여기에 AI 호출 또는 데이터 검색 로직을 추가
+    # 여기에 AI 호출 또는a 데이터 검색 로직을 추가
     response_text = process_query(user_query)  # 가상의 함수로, 실제 구현 필요
     return jsonify({'query': user_query, 'response': response_text})  # 결과를 JSON 형식으로 반환
 
