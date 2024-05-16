@@ -11,7 +11,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 
-os.environ['OPENAI_API_KEY'] = "sk-proj-FB1L7Ho3J1nzSaX0DwN6T3BlbkFJipxFUNvPxKzKkknHuQgh"
+os.environ['OPENAI_API_KEY'] = "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"
 
 # JSON 파일 경로
 json_file_path = "restaurant.json"
@@ -114,7 +114,7 @@ def retrieve_from_vector_database(user_input):
         return "해당 장소 정보를 찾을 수 없습니다."
 
     context += f"\n사용자 입력: {user_input}"
-    print(context)
+    #print(context)
     return context
 
 
@@ -135,11 +135,14 @@ chain = (
         | StrOutputParser()
 )
 
-# user_input = input("사용자 입력을 입력하세요: ")
-user_input = "소개팅하기 괜찮은 장소 추천해줘"
-result = chain.invoke(user_input)
-print("질문 >>", user_input)
-print(result)
+#user_input = input("사용자 입력을 입력하세요: ")
+#user_input = "소개팅하기 괜찮은 장소 추천해줘"
+#result = chain.invoke(user_input)
+#print("질문 >>", user_input)
+#print(result)
 
+def responsetext(user_input):
+    result = chain.invoke(user_input)
+    return result
 
 
