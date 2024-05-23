@@ -1,9 +1,7 @@
 from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS
 from test_retriever import responsetext
 
 app = Flask(__name__)
-CORS(app)  # 모든 도메인에 대해 CORS 허용
 
 @app.route('/')
 def index():
@@ -11,21 +9,24 @@ def index():
 
 @app.route('/search', methods=['POST'])
 def search():
-    data = request.get_json()  # 요청 데이터를 JSON 형식으로 파싱
-    if data is None:
-        return jsonify({'error': 'No data provided'}), 400
+    data = request.get_json()  # JSON 데이터 받아오기
+    user_query = data.get('query')
+    user_location = data.get('location')
 
-    user_query = data.get('query')  # 사용자의 질문을 받아옴
-    user_location = data.get('location')  # 사용자의 위치를 받아옴
+    if user_query and user_location:
+        latitude = user_location.get('lat')
+        longitude = user_location.get('lon')
 
-    if not user_query or not user_location:
-        return jsonify({'error': 'Invalid data provided'}), 400
+        # 사용자 위치 좌표를 튜플로 만듦
+        location = (latitude, longitude)
 
-    # 리트리버를 통해 사용자의 질문 처리하고 응답 생성
-    response_text = process_query(user_query, (user_location['lat'], user_location['lon']))
+        # 리트리버를 통해 사용자의 질문 처리하고 응답 생성
+        response_text = process_query(user_query, location)
 
-    # 응답을 JSON 형식으로 반환
-    return jsonify({'query': user_query, 'response': response_text})
+        # 응답을 JSON 형식으로 반환
+        return jsonify({'query': user_query, 'response': response_text})
+    else:
+        return jsonify({'error': 'Invalid input'}), 400
 
 def process_query(query, user_location):
     # 리트리버 함수를 호출하여 사용자의 질문에 대한 정보를 가져옵니다.
