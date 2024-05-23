@@ -1,37 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>AI Interaction Interface</title>
-<link rel="stylesheet" href="/static/styles.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-$(document).ready(function(){
-  $("#searchButton").click(function(){
-    var userQuery = $("#searchInput").val();
-    $.ajax({
-      url: '/search',
-      type: 'POST',
-      data: {query: userQuery},
-      success: function(data) {
-        $("#searchInput").val('');  // 입력창을 비웁니다.
-        // 질문과 AI 응답을 로그에 추가
-        $("#conversationLog").append('<div class="user-query"><strong>You:</strong> ' + data.query + '</div>');
-        $("#conversationLog").append('<div class="ai-response"><strong>AI:</strong> ' + data.response + '</div>');
-      },
-      error: function() {
-        alert("Error communicating with the server.");
-      }
-    });
-  });
-});
-</script>
+    <meta charset="UTF-8">
+    <title>AI Interaction Interface</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#searchButton").click(function(){
+                var userQuery = $("#searchInput").val();
+
+                // Geolocation API를 사용하여 현재 위치를 가져옵니다.
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var userLocation = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude
+                        };
+
+                        $.ajax({
+                            url: '/search',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({query: userQuery, location: userLocation}),
+                            success: function(data) {
+                                $("#searchInput").val('');  // 입력창을 비웁니다.
+                                // 질문과 AI 응답을 로그에 추가
+                                $("#conversationLog").append('<div class="user-query"><strong>You:</strong> ' + data.query + '</div>');
+                                $("#conversationLog").append('<div class="ai-response"><strong>AI:</strong> ' + data.response + '</div>');
+                            },
+                            error: function() {
+                                alert("Error communicating with the server.");
+                            }
+                        });
+                    }, function(error) {
+                        alert("Geolocation error: " + error.message);
+                    });
+                } else {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            });
+        });
+    </script>
 </head>
 <body>
-<div id="conversationLog"></div> <!-- 대화 로그를 표시할 영역 -->
-<div class="search-container">
-  <textarea id="searchInput" placeholder="Type your query here..."></textarea>
-  <button id="searchButton">Send</button>
-</div>
+    <div id="conversationLog"></div> <!-- 대화 로그를 표시할 영역 -->
+    <div class="search-container">
+        <textarea id="searchInput" placeholder="Type your query here..."></textarea>
+        <button id="searchButton">Send</button>
+    </div>
 </body>
 </html>
