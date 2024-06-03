@@ -26,8 +26,8 @@
                             success: function(data) {
                                 $("#searchInput").val('');  // 입력창을 비웁니다.
                                 // 질문과 AI 응답을 로그에 추가
-                                $("#conversationLog").append('<div class="user-query"><strong>You:</strong> ' + data.query + '</div>');
-                                $("#conversationLog").append('<div class="ai-response"><strong>AI:</strong> ' + data.response + '</div>');
+                                $("#conversationLog").append('<div class="message user-query"><strong>You:</strong> ' + data.query + '</div>');
+                                $("#conversationLog").append('<div class="message ai-response"><strong>AI:</strong> ' + data.response + '</div>');
                             },
                             error: function() {
                                 alert("Error communicating with the server.");
