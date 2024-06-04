@@ -12,8 +12,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 os.environ['OPENAI_API_KEY'] = "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"
 
 # JSON 파일 경로
-json_file_path = "restaurant.json"
-vector_data_file_path = "vector_data.json"
+json_file_path = "merged_seoul_little.json"
+vector_data_file_path = "vector_seoul_little.json"
 
 def get_nearest_places(user_location, places, n):
     places_with_distance = [(place["id"], calculate_distance(user_location, place["location"])) for place in places]
@@ -79,15 +79,14 @@ def retrieve_from_vector_database(user_input, user_location):
         i = 0
         for place in most_similar_places[:-1]:
             i += 1
-            name = place["name"]
-            type = place["type"]
-            address = place["address"]
+            name = place["place_name"]
+            type = place["category_name"]
+            address = place["road_address_name"]
             rating = place["rating"]
-            tags = ", ".join(place["tag"])
-            details = ", ".join(place["detail"])
+            tags = ", ".join(place["detail"])
             context += f'''장소 이름은 '{name}'고 장소 타입은 '{type}'이다. 
-    데이터베이스 내의 장소 중 현재 위치와 {i}번째로 가까운 장소이며, 주소는 '{address}'이고 평점은 '{rating}'점이다. 
-    세부사항으로는 '{tags}', '{details}' 등이 있다.\n'''
+                    데이터베이스 내의 장소 중 현재 위치와 {i}번째로 가까운 장소이며, 주소는 '{address}'이고 평점은 '{rating}'점이다. 
+                    세부사항으로는 '{tags}' 등이 있다.\n'''
     else:
         return "해당 장소 정보를 찾을 수 없습니다."
 
