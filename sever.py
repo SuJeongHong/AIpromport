@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from test_retriever import responsetext
+import requests
 
 app = Flask(__name__)
 
@@ -36,10 +37,32 @@ def process_query(query, user_location):
     print("Retriever Response:", relevant_place_info)
     print("location : ", user_location)
 
+    #현재 위치 좌표 텍스트 변환
+    text = get_address_from_coordinates(*user_location)
+    print("위치: ", text)
     # 리트리버에서 가져온 정보를 응답으로 사용합니다.
     response_text = relevant_place_info
 
     return response_text
+#현재 위치 좌표 텍스트로 변환
+def get_address_from_coordinates(lat, lon):
+    api_key = '61d4dab14a5504fb5a190597a427da0d'
+    headers = {'Authorization': f'KakaoAK {api_key}'}
+    url = 'https://dapi.kakao.com/v2/local/geo/coord2address.json'
+
+    response = requests.get(url, headers=headers, params={
+        'x': lon,
+        'y': lat,
+        'input_coord': 'WGS84'
+    })
+
+    result = response.json()
+    if 'documents' in result and result['documents']:
+        address_info = result['documents'][0]['address']
+        return address_info['address_name'], address_info.get('zip_code', 'No postcode available')
+
+    return None, "No address found"
+
 
 if __name__ == '__main__':
     app.run(debug=True)
