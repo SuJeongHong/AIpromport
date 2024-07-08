@@ -9,7 +9,7 @@ import math
 from sklearn.metrics.pairwise import cosine_similarity
 
 # 직접 API 키 설정
-api_key = "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"
+api_key = "sk-proj-pyCLfEK2A4Ju3Jx7eS1VT3BlbkFJxM4iGvvDjEeZ78gZerP4"
 
 # JSON 파일 경로
 json_file_path = "korea_rest_update.json"

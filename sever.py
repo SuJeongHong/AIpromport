@@ -41,7 +41,6 @@ def process_query(query, user_location):
     # 리트리버에서 반환된 정보를 출력합니다.
     print("Retriever Response:", relevant_place_info)
 
-
     # 리트리버에서 가져온 정보를 응답으로 사용합니다.
     response_text = relevant_place_info
 

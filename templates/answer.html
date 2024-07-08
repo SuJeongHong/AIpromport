@@ -12,30 +12,46 @@
 
                 // Geolocation API를 사용하여 현재 위치를 가져옵니다.
                 if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        var userLocation = {
-                            lat: position.coords.latitude,
-                            lon: position.coords.longitude
-                        };
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            var userLocation = {
+                                lat: position.coords.latitude,
+                                lon: position.coords.longitude
+                            };
 
-                        $.ajax({
-                            url: '/search',
-                            type: 'POST',
-                            contentType: 'application/json',
-                            data: JSON.stringify({query: userQuery, location: userLocation}),
-                            success: function(data) {
-                                $("#searchInput").val('');  // 입력창을 비웁니다.
-                                // 질문과 AI 응답을 로그에 추가
-                                $("#conversationLog").append('<div class="message user-query"><strong>You:</strong> ' + data.query + '</div>');
-                                $("#conversationLog").append('<div class="message ai-response"><strong>AI:</strong> ' + data.response + '</div>');
-                            },
-                            error: function() {
-                                alert("Error communicating with the server.");
+                            $.ajax({
+                                url: '/search',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({query: userQuery, location: userLocation}),
+                                success: function(data) {
+                                    $("#searchInput").val('');  // 입력창을 비웁니다.
+                                    // 질문과 AI 응답을 로그에 추가
+                                    $("#conversationLog").append('<div class="message user-query"><strong>You:</strong> ' + data.query + '</div>');
+                                    $("#conversationLog").append('<div class="message ai-response"><strong>AI:</strong> ' + data.response + '</div>');
+                                },
+                                error: function() {
+                                    alert("Error communicating with the server.");
+                                }
+                            });
+                        },
+                        function(error) {
+                            switch(error.code) {
+                                case error.PERMISSION_DENIED:
+                                    alert("User denied the request for Geolocation.");
+                                    break;
+                                case error.POSITION_UNAVAILABLE:
+                                    alert("Location information is unavailable.");
+                                    break;
+                                case error.TIMEOUT:
+                                    alert("The request to get user location timed out.");
+                                    break;
+                                case error.UNKNOWN_ERROR:
+                                    alert("An unknown error occurred.");
+                                    break;
                             }
-                        });
-                    }, function(error) {
-                        alert("Geolocation error: " + error.message);
-                    });
+                        }
+                    );
                 } else {
                     alert("Geolocation is not supported by this browser.");
                 }
