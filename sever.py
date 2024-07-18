@@ -19,7 +19,7 @@ def search():
         longitude = user_location.get('lon')
 
         # 사용자 위치 좌표를 튜플로 만듦
-        location = (latitude, longitude)
+        location = (latitude, longitude)  # (37.5504, 126.9601)
 
         # 리트리버를 통해 사용자의 질문 처리하고 응답 생성
         response_text = process_query(user_query, location)
@@ -32,8 +32,14 @@ def search():
 def process_query(query, user_location):
     # 현재 위치 좌표 텍스트 변환
     address_name, postcode = get_address_from_coordinates(*user_location)
-    print("우편번호: ", postcode)
+    if postcode == '' or postcode == 'No postcode available':
+        # 주변 좌표를 기반으로 우편번호 앞 3자리 숫자를 얻음
+        postcode = get_nearby_postcode(user_location)
+        print("repostcode", postcode)
+    else:
+        print("우편번호: ", postcode)
     print("location : ", user_location)
+    print("text장소 : ", address_name)
 
     # 리트리버 함수를 호출하여 사용자의 질문에 대한 정보를 가져옵니다.
     relevant_place_info = responsetext(query, user_location, postcode)
@@ -74,6 +80,29 @@ def get_address_from_coordinates(lat, lon):
         return address_name, postcode
 
     return None, "No address found"
+
+def get_nearby_postcode(location):
+    # 주변 좌표들을 생성하여 우편번호를 검색
+    lat, lon = location
+    nearby_locations = [
+        (lat + 0.01, lon),
+        (lat - 0.01, lon),
+        (lat, lon + 0.01),
+        (lat, lon - 0.01),
+        (lat + 0.005, lon + 0.005),
+        (lat - 0.005, lon - 0.005),
+        (lat + 0.02, lon),
+        (lat - 0.02, lon),
+        (lat, lon + 0.02),
+        (lat, lon - 0.02)
+    ]
+
+    for loc in nearby_locations:
+        address_name, postcode = get_address_from_coordinates(*loc)
+        if postcode != 'No postcode available':
+            return postcode[:3]  # 우편번호 앞 3자리 반환
+
+    return 'No postcode available'
 
 if __name__ == '__main__':
     app.run(debug=True)
