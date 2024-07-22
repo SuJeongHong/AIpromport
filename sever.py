@@ -19,7 +19,7 @@ def search():
         longitude = user_location.get('lon')
 
         # 사용자 위치 좌표를 튜플로 만듦
-        location = (latitude, longitude)  # (37.5504, 126.9601)
+        location = (37.532,126.971)#(latitude, longitude)
 
         # 리트리버를 통해 사용자의 질문 처리하고 응답 생성
         response_text = process_query(user_query, location)
