@@ -17,8 +17,8 @@ connection_string = "mongodb+srv://hae081128:1213@test1.fe6gacs.mongodb.net/"
 # MongoDB 서버에 연결
 client = MongoClient(connection_string)
 db = client['korea_rest']
-cc_r = db['Seoul_rest']  # 장소 데이터
-cc_v = db['Seoul_vector']  # 벡터 데이터
+cc_r = db['500_seoul_rest']  # 장소 데이터
+cc_v = db['500_seoul_vector']  # 벡터 데이터
 
 def get_address_from_coordinates(lat, lon):
     api_key = '61d4dab14a5504fb5a190597a427da0d'
@@ -95,6 +95,7 @@ def retrieve_from_vector_database(user_input, user_location, postcode):
         document = cc_v.find_one({num_id: {"$exists": True}}, {'_id': 0})
         if document:
             small_db[num_id] = document[num_id]["embedding"]
+            print("smalldb: ",small_db)
         else:
             print(f"No document found for id {num_id}")
 
