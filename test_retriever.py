@@ -17,8 +17,8 @@ connection_string = "mongodb+srv://hae081128:1213@test1.fe6gacs.mongodb.net/"
 # MongoDB 서버에 연결
 client = MongoClient(connection_string)
 db = client['korea_rest']
-cc_r = db['500_seoul_rest']  # 장소 데이터
-cc_v = db['500_seoul_vector']  # 벡터 데이터
+cc_r = db['total_rest']  # 장소 데이터
+cc_v = db['total_vector']  # 벡터 데이터
 
 def get_address_from_coordinates(lat, lon):
     api_key = '61d4dab14a5504fb5a190597a427da0d'
@@ -54,62 +54,58 @@ def get_nearest_places(user_location, places, n):
     sorted_places = sorted(places_with_distance, key=lambda x: x[1])
     return [place for place, distance in sorted_places[:n]]
 
+# 거리 계산 함수
 def calculate_distance(coord1, coord2):
     lat1, lon1 = coord1
     lat2, lon2 = coord2
     R = 6371  # 지구의 반지름 (단위: km)
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat / 2) * math.sin(dlat / 2) + math.cos(math.radians(lat1)) \
-        * math.cos(math.radians(lat2)) * math.sin(dlon / 2) * math.sin(dlon / 2)
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(lat1)) \
+        * math.cos(math.radians(lat2)) * math.sin(dlon/2) * math.sin(dlon/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
     distance = R * c
     return distance
 
 embeddings = OpenAIEmbeddings(api_key=api_key, model="text-embedding-3-small")
 
 def embed_user_input(user_input):
-    embedding = embeddings.embed_query(user_input)
-    return embedding
+    return embeddings.embed_query(user_input)
 
 def retrieve_from_vector_database(user_input, user_location, postcode):
     # postcode의 앞 3자리 추출
     postcode3 = postcode[:3]
     print("리트리버 우편 번호 앞 3자리", postcode3)
 
-    # 1차 db: postcode가 같은 장소 리스트 저장
+    # 1차 필터링: postcode가 일치하는 장소
     filtered_places = list(cc_r.find({"postcode": {"$regex": f"^{postcode3}"}}))
-    print("1차 db: ", filtered_places)
-    # 2차 db: 1차 db에서 사용자의 위치에서 가까운 n개 장소 저장
-    nearest_place_ids_int = get_nearest_places(user_location, filtered_places, n=13)
-    print("2차 db: ",nearest_place_ids_int)
+    print("1차:",filtered_places)
+    # 필터링된 장소가 없으면 함수 종료
+    if not filtered_places:
+        return "해당 우편번호에 일치하는 장소가 없습니다."
+
+    #2차 필터링: 사용자의 위치에서 가까운 n개 장소
+    nearest_place_ids_int = get_nearest_places(user_location, filtered_places, n=50)
     nearest_place_ids = [str(item) for item in nearest_place_ids_int]
 
-    vector_data_ids = []
-    cc_v_document = cc_v.find()
-    for doc in cc_v_document:
-        vector_data_ids.extend([key for key in doc.keys() if key.isdigit()])
+    # nearest_place_ids가 비어 있으면 함수 종료
+    if not nearest_place_ids:
+        return "사용자의 위치에서 가까운 장소를 찾을 수 없습니다."
 
-    small_db = {}
-    for num_id in nearest_place_ids:
-        document = cc_v.find_one({num_id: {"$exists": True}}, {'_id': 0})
-        if document:
-            small_db[num_id] = document[num_id]["embedding"]
-            print("smalldb: ",small_db)
-        else:
-            print(f"No document found for id {num_id}")
+    # total_vector의 문서 구조에 맞춰 id 필드를 사용하여 조회
+    vector_docs = cc_v.find({"$or": [{str(nearest_id): {"$exists": True}} for nearest_id in nearest_place_ids]}, {'_id': 0})
+    small_db_MongoDB = {str(nearest_id): doc[str(nearest_id)]["embedding"] for doc in vector_docs for nearest_id in nearest_place_ids if str(nearest_id) in doc}
 
     # 사용자 입력에 가장 가까운 장소 찾기
-    k = 5
+    k = 10
     user_embedding = embed_user_input(user_input)
-    top_places = [None] * k
-    top_similarities = [0] * k
+    top_places = [None] * (k + 1)
+    top_similarities = [float("-inf")] * (k + 1)
     most_similar_places = []
 
-    for place_id, value in small_db.items():
+    for place_id, value in small_db_MongoDB.items():
         if value is not None:
             similarity = cosine_similarity([user_embedding], [value])[0][0]
-
             if similarity > min(top_similarities):
                 min_similarity_index = top_similarities.index(min(top_similarities))
                 top_places[min_similarity_index] = place_id
@@ -123,20 +119,19 @@ def retrieve_from_vector_database(user_input, user_location, postcode):
 
     context = ""
     if most_similar_places:
-        for i, place in enumerate(most_similar_places, 1):
+        for rank, place in enumerate(most_similar_places, start=1):
             name = place.get("place_name", "Unknown")
-            type = place.get("category_name", "Unknown")
+            category = place.get("category_name", "Unknown")
             address = place.get("road_address_name", "Unknown")
             rating = place.get("rating", "Unknown")
             details = ", ".join(place.get("detail", []))
-            phone = place.get("phone", "Unknown")
-            context += f'''장소 이름은 '{name}'고 장소 타입은 '{type}'이다. 
-    데이터베이스 내의 장소 중 현재 위치와 {i}번째로 가까운 장소이며, 주소는 '{address}'이고 평점은 '{rating}'점이다. 
-    세부사항으로는 '{details}' 등이 있다.\n'''
+            context += f"k={rank}: 장소 이름은 '{name}'고 장소 타입은 '{category}'이다. 주소는 '{address}'이며 평점은 '{rating}'점이다. 세부사항으로는 '{details}' 등이 있다.\n"
+
     else:
         return "해당 장소 정보를 찾을 수 없습니다."
 
     context += f"\n사용자 입력: {user_input}"
+    print(context)
     return context
 
 # Langchain 설정
