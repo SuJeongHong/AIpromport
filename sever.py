@@ -19,7 +19,7 @@ def search():
         longitude = user_location.get('lon')
 
         # 사용자 위치 좌표를 튜플로 만듦
-        location = (37.6514,127.0583)#(latitude, longitude)
+        location = (33.430403, 126.927703)#(latitude, longitude)
 
         # 리트리버를 통해 사용자의 질문 처리하고 응답 생성
         response_text = process_query(user_query, location)
@@ -38,14 +38,14 @@ def process_query(query, user_location):
         print("repostcode", postcode)
     else:
         print("우편번호: ", postcode)
-    print("location : ", user_location)
-    print("text장소 : ", address_name)
+    #print("location : ", user_location)
+    #print("text장소 : ", address_name)
 
     # 리트리버 함수를 호출하여 사용자의 질문에 대한 정보를 가져옵니다.
     relevant_place_info = responsetext(query, user_location, postcode)
 
     # 리트리버에서 반환된 정보를 출력합니다.
-    print("Retriever Response:", relevant_place_info)
+    #print("Retriever Response:", relevant_place_info)
 
     # 리트리버에서 가져온 정보를 응답으로 사용합니다.
     response_text = relevant_place_info
