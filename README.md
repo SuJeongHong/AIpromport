@@ -38,18 +38,38 @@ AIpromport/
 
 │ └── styles.css # 선택적 스타일링
 
-├── .env # API 키 저장 (Git에 push 금지)
+├── .env # API 키 저장 => .env파일 별도 생성 필요
 
 └── requirements.txt # 설치 패키지 목록
 
 
 ## 실행 방법
-//mongo db, openai api 설정 안되어 있으므로 실행이 되지 않습니다. 
 
+
+```bash
+# 1. 의존성 설치
+pip install -r requirements.txt
+
+# 2. .env 파일 작성 (.env.example 참고)
+KAKAO_MAP_KEY=your_kakao_api_key
+OPENAI_API_KEY=your_openai_key
+MONGO_DB_KEY=your_mongodb_uri
+
+# 3. 서버 실행
+python sever.py
+
+접속 주소: http://127.0.0.1:5000/
+```
 ### 기여 내용 
 - 전체 RAG 파이프라인 기획 및 백엔드 설계
-- MongoDB 기반 벡터 DB 구조화 및 필터링 로직 구현
-- Kakao Map API 좌표 → 행정구역 추출 처리
+- Kakao Map API 좌표 → 행정구역 추출 처리 및 retriver연결 처
 - Langchain 프롬프트 구성 및 응답 포맷 디자인
 - KDBC 2024 한국데이터베이스학회 논문 공동 저자
-re
+
+## 📄 논문 정보
+
+- **제목**: 위치 기반 맞춤형 추천을 위한 RAG 챗봇 시스템 개발  
+- **학회**: KDBC 2024 한국데이터베이스학회  
+- **저자**: 박시연, 이해영, 홍수정, 이기용  
+- **PDF**: [논문 원문 다운로드](./KDBC_2024_RAG챗봇.pdf)
+
