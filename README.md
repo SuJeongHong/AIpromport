@@ -71,5 +71,5 @@ python sever.py
 - **제목**: 위치 기반 맞춤형 추천을 위한 RAG 챗봇 시스템 개발  
 - **학회**: KDBC 2024 한국데이터베이스학회  
 - **저자**: 박시연, 이해영, 홍수정, 이기용  
-- **PDF**: [논문 원문 다운로드](KDBC_2024_paper_76_위치기반맞춤형추천을 위한 RAG챗봇시스템개발 논문_홍수정.pdf)
+- **PDF**: [논문 원문 다운로드](https://github.com/SuJeongHong/AIpromport/blob/main/KDBC_2024_paper_76_%EC%9C%84%EC%B9%98%EA%B8%B0%EB%B0%98%EB%A7%9E%EC%B6%A4%ED%98%95%EC%B6%94%EC%B2%9C%EC%9D%84%20%EC%9C%84%ED%95%9C%20RAG%EC%B1%97%EB%B4%87%EC%8B%9C%EC%8A%A4%ED%85%9C%EA%B0%9C%EB%B0%9C%20%EB%85%BC%EB%AC%B8_%ED%99%8D%EC%88%98%EC%A0%95.pdf)
 
