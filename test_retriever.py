@@ -9,10 +9,14 @@ import requests
 from pymongo import MongoClient
 from sklearn.metrics.pairwise import cosine_similarity
 
+from dotenv import load_dotenv
+
+load_dotenv()  # .env 파일의 변수들을 불러온다
+
 # API 키 설정
-api_key = "sk-proj-pyCLfEK2A4Ju3Jx7eS1VT3BlbkFJxM4iGvvDjEeZ78gZerP4"
+api_key = os.getenv("OPENAI_API_KEY")
 # MongoDB key
-connection_string = "mongodb+srv://hae081128:1213@test1.fe6gacs.mongodb.net/"
+connection_string = os.getenv("MONGO_DB_KEY")
 
 # MongoDB 서버에 연결
 client = MongoClient(connection_string)
@@ -21,7 +25,7 @@ cc_r = db['total_rest']  # 장소 데이터
 cc_v = db['total_vector']  # 벡터 데이터
 
 def get_address_from_coordinates(lat, lon):
-    api_key = '61d4dab14a5504fb5a190597a427da0d'
+    api_key = os.getenv("KAKAO_MAP_KEY")
     headers = {'Authorization': f'KakaoAK {api_key}'}
     url = 'https://dapi.kakao.com/v2/local/geo/coord2address.json'
 

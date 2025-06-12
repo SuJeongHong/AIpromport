@@ -1,6 +1,10 @@
 from flask import Flask, request, jsonify, render_template
 from test_retriever import responsetext
-import requests
+import requests,os
+
+from dotenv import load_dotenv
+
+load_dotenv()  # .env 파일의 변수들을 불러온다
 
 app = Flask(__name__)
 
@@ -54,7 +58,7 @@ def process_query(query, user_location):
 
 # 현재 위치 좌표 텍스트와 우편번호로 변환
 def get_address_from_coordinates(lat, lon):
-    api_key = '61d4dab14a5504fb5a190597a427da0d'
+    api_key = os.getenv("KAKAO_MAP_KEY")
     headers = {'Authorization': f'KakaoAK {api_key}'}
     url = 'https://dapi.kakao.com/v2/local/geo/coord2address.json'
 
